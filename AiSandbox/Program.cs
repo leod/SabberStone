@@ -92,12 +92,15 @@ namespace SabberStoneCoreAi
 
 		public static void RandomGames()
 		{
-			int total = 10000;
+			int numGames = 1000;
 			var watch = Stopwatch.StartNew();
 
-			long turns = 0;
+			long numTurns = 0;
+			long numOptions = 0;
+			long numActions = 0;
 			int[] wins = new[] { 0, 0 };
-			for (int i = 0; i < total; i++)
+
+			for (int i = 0; i < numGames; i++)
 			{
 				var game = new Game(GameConfig());
 				game.StartGame();
@@ -113,21 +116,29 @@ namespace SabberStoneCoreAi
 					PlayerTask option = options[Rnd.Next(options.Count)];
 					//Console.WriteLine(option.FullPrint());
 					game.Process(option);
+
+					numActions += 1;
+					numOptions += options.Count;
 				}
-				turns += game.Turn;
+
+				numTurns += game.Turn;
+
 				if (game.Player1.PlayState == PlayState.WON)
 					wins[0]++;
 				if (game.Player2.PlayState == PlayState.WON)
 					wins[1]++;
 			}
+
 			watch.Stop();
 
-			Console.WriteLine($"{total} games with {turns} turns took {watch.ElapsedMilliseconds} ms => " +
-							  $"Avg. {watch.ElapsedMilliseconds / (float) total} per game " +
-							  $"and {total / (float) watch.ElapsedMilliseconds * 1000.0} games per second " +
-							  $"and {watch.ElapsedMilliseconds / (float) (total * turns)} per turn!");
-			Console.WriteLine($"{turns / (float) total} turns per game!");
-			Console.WriteLine($"playerA {wins[0] * 100.0 / total}% vs. playerB {wins[1] * 100.0 / total}%!");
+			Console.WriteLine($"{numGames} games with {numTurns} turns took {watch.ElapsedMilliseconds} ms => " +
+							  $"Avg. {watch.ElapsedMilliseconds / (float) numGames} ms per game " +
+							  $"and {numGames / (float) watch.ElapsedMilliseconds * 1000.0} games per second ");
+			Console.WriteLine($"{numTurns / (float) numGames} turns per game!");
+			Console.WriteLine($"{numActions / (float) numGames} actions per game and " +
+							  $"{numActions / (float) numTurns} actions per turn!");
+			Console.WriteLine($"{numOptions / (float) numTurns} options per action!");
+			Console.WriteLine($"playerA {wins[0] * 100.0 / numGames}% vs. playerB {wins[1] * 100.0 / numGames}%!");
 		}
 	}
 }
